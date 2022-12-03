@@ -4,6 +4,7 @@ import {
     PointGraphics,
     EntityDescription,
     ImageryLayer,
+    Cesium3DTileset,
 } from "resium";
 import { Cartesian3 } from "cesium";
 import * as Cesium from "cesium";
@@ -24,12 +25,32 @@ const imageProvider = new Cesium.UrlTemplateImageryProvider({
     maximumLevel: 19,
 });
 
+// 3D Tiles
+const cesium3DTilesetUrl = process.env.REACT_APP_CESIUM_3DTILESET_URL!;
+
+// styling 3D Tiles
+const cesium3DTileStyle = new Cesium.Cesium3DTileStyle({
+    color: {
+        conditions: [
+            ["${_height} >= 50", "color('red')"],
+            ["${_height} >= 30", "color('orange')"],
+            ["${_height} >= 10", "color('yellow')"],
+            ["${_height} >= 5", "color('green')"],
+            ["${_height} >= 0", "color('blue')"],
+        ],
+    },
+});
+
 const position = Cartesian3.fromDegrees(-74.0707383, 40.7117244, 100);
 
 function App() {
     return (
         <Viewer full terrainProvider={terrainProvider}>
             <ImageryLayer imageryProvider={imageProvider} />
+            <Cesium3DTileset
+                url={cesium3DTilesetUrl}
+                style={cesium3DTileStyle}
+            />
             <Entity position={position} name='Tokyo'>
                 <PointGraphics pixelSize={10} />
                 <EntityDescription>
