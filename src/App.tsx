@@ -26,41 +26,47 @@ const imageProvider = new Cesium.UrlTemplateImageryProvider({
 });
 
 // 3D Tiles
-const cesium3DTilesetUrl = process.env.REACT_APP_CESIUM_3DTILESET_URL!;
+// chiyoda-ku
+const cesium3DTilesetUrlChiyoda =
+    process.env.REACT_APP_CESIUM_3DTILESET_URL_CHIYODA!;
+// shinjuku-ku
+const cesium3DTilesetUrlShinjuku =
+    process.env.REACT_APP_CESIUM_3DTILESET_URL_SHINJUKU!;
 
 // styling 3D Tiles
 const cesium3DTileStyle = new Cesium.Cesium3DTileStyle({
+    // 駅からの距離に応じて、色を変える
+    defines: {
+        // 駅からの距離
+        distanceFromStation:
+            "distance(vec2(${feature['_x']}, ${feature['_y']}), vec2(139.73552409, 35.69106636))",
+    },
     color: {
         conditions: [
-            ["${_height} >= 50", "color('red')"],
-            ["${_height} >= 30", "color('orange')"],
-            ["${_height} >= 10", "color('yellow')"],
-            ["${_height} >= 5", "color('green')"],
-            ["${_height} >= 0", "color('blue')"],
+            ["${distanceFromStation} < 0.005", "color('red')"],
+            ["${distanceFromStation} < 0.01", "color('orange')"],
+            ["true", "color('yellow')"],
         ],
     },
 });
 
-const position = Cartesian3.fromDegrees(-74.0707383, 40.7117244, 100);
+const position = Cartesian3.fromDegrees(139.73552409, 35.69106636, 100);
 
 function App() {
     return (
         <Viewer full terrainProvider={terrainProvider}>
             <ImageryLayer imageryProvider={imageProvider} />
             <Cesium3DTileset
-                url={cesium3DTilesetUrl}
+                url={cesium3DTilesetUrlChiyoda}
+                style={cesium3DTileStyle}
+            />
+            <Cesium3DTileset
+                url={cesium3DTilesetUrlShinjuku}
                 style={cesium3DTileStyle}
             />
             <Entity position={position} name='Tokyo'>
                 <PointGraphics pixelSize={10} />
-                <EntityDescription>
-                    <h1>マークダウンでかけちゃうよ</h1>
-                    <p>Population: 9,273,000</p>
-                    <h2>やっほい</h2>
-                    <li>1</li>
-                    <li>2</li>
-                    <li>3</li>
-                </EntityDescription>
+                <EntityDescription>駅ですよ</EntityDescription>
             </Entity>
         </Viewer>
     );
